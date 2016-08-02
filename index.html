@@ -52,7 +52,7 @@
 
 
   </head>
-  <body onload="init()">
+  <body onload="initCloudMap(); hideButtons()">
     <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
       <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
         <div class="mdl-layout__header-row">
@@ -117,7 +117,7 @@
         <div class="mdl-grid demo-content">
 
           <!--按钮块-->
-          <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+          <div id="ButtonLib" class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
             <input  type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white" value="等待添加" onclick=""/>
             <!--<svg fill="currentColor" width="200px" height="200px" viewBox="0 0 1 1" class="demo-chart mdl-cell mdl-cell&#45;&#45;4-col mdl-cell&#45;&#45;3-col-desktop">-->
               <!--<use xlink:href="#piechart" mask="url(#piemask)" />-->
