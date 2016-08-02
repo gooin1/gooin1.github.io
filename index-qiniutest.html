@@ -48,35 +48,8 @@
     <script src="libs/zdclient.js" type="text/javascript"></script>
     <script src="libs/jsonformat/json2.js" type="text/javascript"></script>
     <script src="libs/jsonformat/jsonExtend.js" type="text/javascript"></script>
-    <script type="text/javascript">
-      var map;
-      var layer;
+    <script src="js/initMap.js" type="text/javascript"></script>
 
-      function init() {
-//            创建地图容器
-        map = new OpenLayers.Map("map2", {
-//            添加控件
-          controls: [
-            new OpenLayers.Control.Navigation(),
-            new OpenLayers.Control.MousePosition(),
-            new OpenLayers.Control.LayerSwitcher(),
-            new OpenLayers.Control.OverviewMap()
-          ]
-        });
-
-        layer = new Zondy.Map.Doc("BaseLayer", "worldJW", {
-          ip: "123.206.26.105",
-          port: "6163",
-          isBaseLayer: true
-        });
-//          添加图层
-        map.addLayers([layer]);
-//            设置显示中心和级别
-        map.setCenter(new OpenLayers.LonLat(0,0), 2);
-      }
-
-
-    </script>
 
 
   </head>
