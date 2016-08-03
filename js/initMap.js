@@ -6,6 +6,7 @@ var layer;
 var layer0;
 
 function initCloudMap() {
+    destroyMap();
 //            创建地图容器
     map = new OpenLayers.Map("map2", {
 //            添加控件
@@ -30,6 +31,31 @@ function initCloudMap() {
 //            设置显示中心和级别
     map.setCenter(new OpenLayers.LonLat(0,0), 2);
 }
+/**********************************本地地图******************************************/
+function initLocalMap() {
+    destroyMap();
+//            创建地图容器
+    map = new OpenLayers.Map("map2", {
+//            添加控件
+        controls: [
+            new OpenLayers.Control.Navigation(), //导航
+            new OpenLayers.Control.MousePosition(), //鼠标位置
+            new OpenLayers.Control.LayerSwitcher(), //图层控制
+            new OpenLayers.Control.OverviewMap()    //鹰眼
+        ]
+    });
+//            添加图层
+    layer = new Zondy.Map.Doc("BaseLayer", "world", {
+        ip: "127.0.0.1",
+        port: "6163",//端口
+        isBaseLayer: true // 设为底图
+    });
+//          添加图层
+    map.addLayers([layer]);
+//            设置显示中心和级别
+    map.setCenter(new OpenLayers.LonLat(0, 0), 2);
+}
+
 
 function initOnlineMap() {
     destroyMap();
@@ -58,10 +84,6 @@ function initOnlineMap() {
 }
 
 
-
-
-
-
 /*****************************************************/
 
 /***************************销毁地图*******************************/
@@ -71,13 +93,15 @@ function destroyMap() {
     }
 }
 
-/****************隐藏JSON面板*******************/
+/****************隐藏Button面板*******************/
 function hideButtons() {
     var Buttons= document.getElementById('ButtonLib');
     Buttons.style.display = "none";
 }
-/*******************显示JSON面板*************************/
-function showButtons() {
+/*******************显示Button面板*****************/
+function showButtons() { 
     var Buttons = document.getElementById('ButtonLib');
     Buttons.style.display = "";
 }
+
+

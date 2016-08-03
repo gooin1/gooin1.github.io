@@ -98,7 +98,7 @@
         </header>
         <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
 
-          <a  class="mdl-navigation__link" >还没有内容</a>
+          <a  onclick="showButtons()" class="mdl-navigation__link" >地图显示</a>
           <a class="mdl-navigation__link" href="">还没有内容</a>
           <a class="mdl-navigation__link" href="">还没有内容</a>
           <a class="mdl-navigation__link" href="">还没有内容</a>
@@ -118,7 +118,9 @@
 
           <!--按钮块-->
           <div id="ButtonLib" class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-            <input  type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white" value="等待添加" onclick=""/>
+            <input  type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white" value="Google地图显示" onclick="initOnlineMap()"/>
+            <input  type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white" value="云服务器地图显示(腾讯云)" onclick="initCloudMap()"/>
+            <input  type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-color-text--white" value="本地地图显示" onclick="initLocalMap()"/>
             <!--<svg fill="currentColor" width="200px" height="200px" viewBox="0 0 1 1" class="demo-chart mdl-cell mdl-cell&#45;&#45;4-col mdl-cell&#45;&#45;3-col-desktop">-->
               <!--<use xlink:href="#piechart" mask="url(#piemask)" />-->
               <!--<text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">82<tspan font-size="0.2" dy="-0.07">%</tspan></text>-->
