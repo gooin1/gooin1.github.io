@@ -104,7 +104,10 @@ function showMapBtn() {
     btn3.onclick = function () {
         initLocalMap();
     };
-
+    
+    var btn4 = document.getElementById('btn4');
+    btn4.style.visibility = "hidden";
+    
 }
 
 
