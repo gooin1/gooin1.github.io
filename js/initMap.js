@@ -90,7 +90,7 @@ function initOnlineMap() {
 function asMapBtn() {
     var btn1 = document.getElementById('btn1');
     btn1.value = "显示云服务器地图(腾讯云)";
-    btn1.onclick=function () {
+    btn1.onclick = function () {
         initCloudMap();
     };
 
@@ -105,13 +105,11 @@ function asMapBtn() {
     btn3.onclick = function () {
         initLocalMap();
     };
-    
+
     var btn4 = document.getElementById('btn4');
     btn4.style.visibility = "hidden";
-    
+
 }
-
-
 
 
 /**************************交互绘制***************************/
@@ -205,8 +203,8 @@ function StartDrawPolygon() {
 function asDrawBtn() {
     var btn1 = document.getElementById('btn1');
     btn1.value = "交互绘制点";
-    btn1.onclick=function () {
-        StartDrawPnt(); 
+    btn1.onclick = function () {
+        StartDrawPnt();
     };
 
     var btn2 = document.getElementById('btn2');
@@ -234,8 +232,8 @@ function asDrawBtn() {
 function asQueryBtn() {
     var btn1 = document.getElementById('btn1');
     btn1.value = "交互点查询(本地服务器)";
-    btn1.onclick=function () {
-        initDraw();
+    btn1.onclick = function () {
+        startInteractivePntQuery();
     };
 
     var btn2 = document.getElementById('btn2');
@@ -262,7 +260,6 @@ var highLtLayer;
 /*******************************交互式点查询(高亮+JSON)*************************************/
 
 function initDraw() {
-    initLocalMap();
 //            添加一个绘制图层
     drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
     map.addLayer(drawLayer);
@@ -302,10 +299,11 @@ function callBack(feature) {
             struct: queryStruct
         });
 //            创建查询服务
-    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world", 2, {
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world", 0, {
         ip: "127.0.0.1",
         port: "6163"
     });
+
 //          开始查询
     queryService.query(InteractiveQuerySuccess);
 }
@@ -327,6 +325,14 @@ function InteractiveQuerySuccess(data) {
     highLtLayer.addFeatures(features);//将要素添加到图层中
 }
 
+function startInteractivePntQuery() {
+    initLocalMap();
+
+    initDraw();
+    if (drawControl) {
+        drawControl.activate();//激活绘图控件
+    }
+}
 
 
 /***************************销毁地图*******************************/
