@@ -5,6 +5,7 @@ var map;
 var layer;
 var layer0;
 
+
 function initCloudMap() {
     clearMap();
     destroyMap();
@@ -86,7 +87,7 @@ function initOnlineMap() {
 
 
 /*******************更改按钮为地图显示按钮************************/
-function showMapBtn() {
+function asMapBtn() {
     var btn1 = document.getElementById('btn1');
     btn1.value = "显示云服务器地图(腾讯云)";
     btn1.onclick=function () {
@@ -113,11 +114,8 @@ function showMapBtn() {
 
 
 
-
 /**************************交互绘制***************************/
-/**
- * Created by gooin on 2016/8/4.
- */
+/*** Created by gooin on 2016/8/4. **/
 
 var vecLayer;
 var drawControl;
@@ -230,6 +228,106 @@ function asDrawBtn() {
         clearMap();
     };
 }
+/***************************地图查询****************************/
+
+/*******************更改按钮为地图显示按钮************************/
+function asQueryBtn() {
+    var btn1 = document.getElementById('btn1');
+    btn1.value = "交互点查询(本地服务器)";
+    btn1.onclick=function () {
+        initDraw();
+    };
+
+    var btn2 = document.getElementById('btn2');
+    btn2.value = "";
+    btn2.onclick = function () {
+        initOnlineMap();
+    };
+
+    var btn3 = document.getElementById('btn3');
+    btn3.value = "";
+    btn3.onclick = function () {
+        initLocalMap();
+    };
+
+    var btn4 = document.getElementById('btn4');
+    btn4.style.visibility = "hidden";
+
+}
+
+
+var drawLayer;
+var highLtLayer;
+
+/*******************************交互式点查询(高亮+JSON)*************************************/
+
+function initDraw() {
+    initLocalMap();
+//            添加一个绘制图层
+    drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
+    map.addLayer(drawLayer);
+//          创建并添加控件  点
+    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Point);
+    drawControl.featureAdded = callBack;
+    map.addControl(drawControl);
+}
+function initHighLtLayer() {
+//            添加一个用于高亮显示的图层
+    highLtLayer = new OpenLayers.Layer.Vector("Highlight");
+    map.addLayer(highLtLayer);
+}
+
+function callBack(feature) {
+//            创建查询结构
+    var queryStruct = new Zondy.Service.QueryFeatureStruct(
+        {
+//                        要查询的信息
+            IncludeGeometry: true,
+            IncludeAttribute: true,
+            IncludeGraphic: true
+        }
+    );
+//          	创建查询形状
+    var pointObj = new Zondy.Object.PointForQuery();
+//            传入OpenLayer的点的坐标
+    pointObj.setByOL(feature.geometry);
+
+//            在点击下一个点时清除之前的点
+    feature.destroy();
+//            创建查询参数
+    var queryParm = new Zondy.Service.QueryParameter(
+        {
+            geometry: pointObj,
+            resultFormat: "json",
+            struct: queryStruct
+        });
+//            创建查询服务
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world", 2, {
+        ip: "127.0.0.1",
+        port: "6163"
+    });
+//          开始查询
+    queryService.query(InteractiveQuerySuccess);
+}
+function InteractiveQuerySuccess(data) {
+    var formatData = JSON.stringify(data);
+    Process(formatData, 1, "resultTable");
+//            如果存在已经高亮的图层则销毁,重建要高亮显示的新图层
+    if (highLtLayer) {
+        highLtLayer.destroy();
+    }
+    initHighLtLayer();
+//          初始化高亮图层
+//            新建对象存储要读取的数据
+    var format = new Zondy.Format.PolygonJSON();
+//                读取查询到的数据并添加到要素中
+    var features = format.read(data);
+//              将高粱图层设为可见
+    highLtLayer.setVisibility(true);//将图层设为可见
+    highLtLayer.addFeatures(features);//将要素添加到图层中
+}
+
+
 
 /***************************销毁地图*******************************/
 function destroyMap() {
@@ -252,7 +350,7 @@ function showButtons() {
 /********************清除绘制图层*********************/
 function clearMap() {
     if (vecLayer) {
-//                移除绘图图层
+//               移除绘图图层
         map.removeLayer(vecLayer);
     }
 //            绘图图层赋值为空
