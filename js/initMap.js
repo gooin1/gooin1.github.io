@@ -51,6 +51,7 @@ function initLocalMap() {
         ip: "127.0.0.1",
         port: "6163",//端口
         isBaseLayer: true // 设为底图
+        // layers:show[0]
     });
 //          添加图层
     map.addLayers([layer]);
@@ -237,9 +238,9 @@ function asQueryBtn() {
     };
 
     var btn2 = document.getElementById('btn2');
-    btn2.value = "";
+    btn2.value = "交互多边形查询(本地服务器)";
     btn2.onclick = function () {
-        initOnlineMap();
+        startInteractivePolQuery();
     };
 
     var btn3 = document.getElementById('btn3');
@@ -327,12 +328,33 @@ function InteractiveQuerySuccess(data) {
 
 function startInteractivePntQuery() {
     initLocalMap();
-
     initDraw();
     if (drawControl) {
         drawControl.activate();//激活绘图控件
     }
 }
+
+
+/******************交互多边形查询*******************/
+function startInteractivePolQuery() {
+    initLocalMap();
+    initDrawPol();
+    if (drawControl) {
+        drawControl.activate();//激活绘图控件
+    }
+}
+
+function initDrawPol() {
+//            添加一个绘制图层
+    drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
+    map.addLayer(drawLayer);
+//          创建并添加控件  点
+    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Polygon);
+    drawControl.featureAdded = callBack;
+    map.addControl(drawControl);
+}
+
+
 
 
 /***************************销毁地图*******************************/
