@@ -7,7 +7,7 @@ var layer0;
 
 
 function initCloudMap() {
-    clearMap();
+    // clearMap();
     destroyMap();
 //            创建地图容器
     map = new OpenLayers.Map("map2", {
