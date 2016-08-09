@@ -284,6 +284,7 @@ function callBack(feature) {
             IncludeAttribute: true,
             IncludeGraphic: true
         }
+        
     );
 //          	创建查询形状
     var pointObj = new Zondy.Object.PointForQuery();
