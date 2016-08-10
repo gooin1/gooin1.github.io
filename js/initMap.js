@@ -275,6 +275,7 @@ function initHighLtLayer() {
     map.addLayer(highLtLayer);
 }
 
+
 function callBack(feature) {
 //            创建查询结构
     var queryStruct = new Zondy.Service.QueryFeatureStruct(
