@@ -360,7 +360,6 @@ function initDrawPol() {
 
 
 
-
 /***************************销毁地图*******************************/
 function destroyMap() {
     if (map) {
