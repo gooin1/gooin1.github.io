@@ -340,6 +340,7 @@ function startInteractivePntQuery() {
 
 
 
+
 /******************交互多边形查询*******************/
 function startInteractivePolQuery() {
     initLocalMap();
