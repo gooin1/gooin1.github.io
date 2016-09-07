@@ -63,7 +63,11 @@ function initLocalMap() {
 }
 
 /**********************************河流地图******************************************/
-function initRiverMap() {
+
+/**
+ * 本地
+ */
+function initLocalRiverMap() {
     destroyMap();
 //            创建地图容器
     map = new OpenLayers.Map("map2", {
@@ -89,6 +93,42 @@ function initRiverMap() {
     map.setCenter(new OpenLayers.LonLat(105.9,32.8), 4);
 }
 
+/**
+ * 企鹅云
+ */
+function initCloudRiverMap() {
+    destroyMap();
+//            创建地图容器
+    map = new OpenLayers.Map("map2", {
+//            添加控件
+        controls: [
+            new OpenLayers.Control.Navigation(), //导航
+            new OpenLayers.Control.MousePosition(), //鼠标位置
+            new OpenLayers.Control.LayerSwitcher(), //图层控制
+            new OpenLayers.Control.OverviewMap()    //鹰眼
+        ]
+    });
+//            添加图层
+
+    layer = new Zondy.Map.Doc("BaseLayer", "world", {
+        ip: "123.206.26.105",
+        port: "6163",//端口
+        isBaseLayer: true,// 设为底图
+        layers:"show:0,1,2,3"
+    });
+//          添加图层
+    map.addLayers([layer]);
+//            设置显示中心和级别
+    map.setCenter(new OpenLayers.LonLat(105.9,32.8), 4);
+}
+
+
+
+
+
+/**
+ * 在线地图
+ */
 
 function initOnlineMap() {
     destroyMap();
@@ -110,7 +150,6 @@ function initOnlineMap() {
 //                        添加GoogleMap的矢量图层
             layerType: Zondy.Enum.GoogleLayerType.VEC,
             isBaseLayer: true,
-            layers:"declude:7,9"
         }
     );
     map.addLayers([layer0]);
@@ -263,7 +302,7 @@ function asDrawBtn() {
 /*******************更改按钮为地图显示按钮************************/
 function asQueryBtn() {
     var btn1 = document.getElementById('btn1');
-    btn1.value = "交互点查询(云服务器)";
+    btn1.value = "交互点查询(local)";
     btn1.onclick = function () {
         startInteractivePntQuery();
     };
@@ -277,7 +316,7 @@ function asQueryBtn() {
     var btn3 = document.getElementById('btn3');
     btn3.value = "河流显示测试";
     btn3.onclick = function () {
-        initRiverMap();
+        initLocalRiverMap();
     };
 
     var btn4 = document.getElementById('btn4');
@@ -289,14 +328,14 @@ function asQueryBtn() {
 var drawLayer;
 var highLtLayer;
 
-/*******************************交互式点查询(高亮+JSON)*************************************/
+/*******************************交互式线查询(高亮+JSON)*************************************/
 
 function initDraw() {
 //            添加一个绘制图层
     drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
     map.addLayer(drawLayer);
 //          创建并添加控件  点
-    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Point);
+    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Path);
     drawControl.featureAdded = callBack;
     map.addControl(drawControl);
 }
@@ -321,21 +360,21 @@ function callBack(feature) {
         
     );
 //          	创建查询形状
-    var pointObj = new Zondy.Object.PointForQuery();
+    var pathObj = new Zondy.Object.PolyLineForQuery();
 //            传入OpenLayer的点的坐标
-    pointObj.setByOL(feature.geometry);
+    pathObj.setByOL(feature.geometry);
 
 //            在点击下一个点时清除之前的点
     feature.destroy();
 //            创建查询参数
     var queryParm = new Zondy.Service.QueryParameter(
         {
-            geometry: pointObj,
+            geometry: pathObj,
             resultFormat: "json",
             struct: queryStruct
         });
 //            创建查询服务
-    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world", 0, {
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world",2, {
         ip: "127.0.0.1",
         port: "6163"
     });
@@ -362,7 +401,7 @@ function InteractiveQuerySuccess(data) {
 }
 
 function startInteractivePntQuery() {
-    initCloudMap();
+    initLocalRiverMap();
     initDraw();
     if (drawControl) {
         drawControl.activate();//激活绘图控件
@@ -374,7 +413,7 @@ function startInteractivePntQuery() {
 
 /******************交互多边形查询*******************/
 function startInteractivePolQuery() {
-    initRiverMap();
+    initLocalRiverMap();
     initDrawPol();
     if (drawControl) {
         drawControl.activate();//激活绘图控件
@@ -386,7 +425,7 @@ function initDrawPol() {
     drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
     map.addLayer(drawLayer);
 //          创建并添加控件  点
-    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Polygon);
+    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Path);
     drawControl.featureAdded = callBack;
     map.addControl(drawControl);
 }
