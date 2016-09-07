@@ -26,7 +26,9 @@ function initCloudMap() {
         ip: "123.206.26.105",
 
         port: "6163",//端口
-        isBaseLayer: true // 设为底图
+        isBaseLayer: true// 设为底图
+        // layers:"hide:7"
+        
     });
 //          添加图层
     map.addLayers([layer]);
@@ -47,16 +49,44 @@ function initLocalMap() {
         ]
     });
 //            添加图层
+
     layer = new Zondy.Map.Doc("BaseLayer", "world", {
         ip: "127.0.0.1",
         port: "6163",//端口
-        isBaseLayer: true // 设为底图
-        // layers:show[0]
+        isBaseLayer: true,// 设为底图
+        layers:"include:0,1,2,3"
     });
 //          添加图层
     map.addLayers([layer]);
 //            设置显示中心和级别
     map.setCenter(new OpenLayers.LonLat(0, 0), 2);
+}
+
+/**********************************河流地图******************************************/
+function initRiverMap() {
+    destroyMap();
+//            创建地图容器
+    map = new OpenLayers.Map("map2", {
+//            添加控件
+        controls: [
+            new OpenLayers.Control.Navigation(), //导航
+            new OpenLayers.Control.MousePosition(), //鼠标位置
+            new OpenLayers.Control.LayerSwitcher(), //图层控制
+            new OpenLayers.Control.OverviewMap()    //鹰眼
+        ]
+    });
+//            添加图层
+
+    layer = new Zondy.Map.Doc("BaseLayer", "world", {
+        ip: "127.0.0.1",
+        port: "6163",//端口
+        isBaseLayer: true,// 设为底图
+        layers:"show:0,1,2,3"
+    });
+//          添加图层
+    map.addLayers([layer]);
+//            设置显示中心和级别
+    map.setCenter(new OpenLayers.LonLat(105.9,32.8), 4);
 }
 
 
@@ -79,7 +109,8 @@ function initOnlineMap() {
         {
 //                        添加GoogleMap的矢量图层
             layerType: Zondy.Enum.GoogleLayerType.VEC,
-            isBaseLayer: true
+            isBaseLayer: true,
+            layers:"declude:7,9"
         }
     );
     map.addLayers([layer0]);
@@ -232,21 +263,21 @@ function asDrawBtn() {
 /*******************更改按钮为地图显示按钮************************/
 function asQueryBtn() {
     var btn1 = document.getElementById('btn1');
-    btn1.value = "交互点查询(本地服务器)";
+    btn1.value = "交互点查询(云服务器)";
     btn1.onclick = function () {
         startInteractivePntQuery();
     };
 
     var btn2 = document.getElementById('btn2');
-    btn2.value = "交互多边形查询(本地服务器)";
+    btn2.value = "交互多边形查询(云服务器)";
     btn2.onclick = function () {
         startInteractivePolQuery();
     };
 
     var btn3 = document.getElementById('btn3');
-    btn3.value = "";
+    btn3.value = "河流显示测试";
     btn3.onclick = function () {
-        initLocalMap();
+        initRiverMap();
     };
 
     var btn4 = document.getElementById('btn4');
@@ -325,13 +356,13 @@ function InteractiveQuerySuccess(data) {
     var format = new Zondy.Format.PolygonJSON();
 //                读取查询到的数据并添加到要素中
     var features = format.read(data);
-//              将高粱图层设为可见
+//              将高亮图层设为可见
     highLtLayer.setVisibility(true);//将图层设为可见
     highLtLayer.addFeatures(features);//将要素添加到图层中
 }
 
 function startInteractivePntQuery() {
-    initLocalMap();
+    initCloudMap();
     initDraw();
     if (drawControl) {
         drawControl.activate();//激活绘图控件
@@ -343,7 +374,7 @@ function startInteractivePntQuery() {
 
 /******************交互多边形查询*******************/
 function startInteractivePolQuery() {
-    initLocalMap();
+    initRiverMap();
     initDrawPol();
     if (drawControl) {
         drawControl.activate();//激活绘图控件
