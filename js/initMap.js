@@ -302,9 +302,9 @@ function asDrawBtn() {
 /*******************更改按钮为地图显示按钮************************/
 function asQueryBtn() {
     var btn1 = document.getElementById('btn1');
-    btn1.value = "交互点查询(local)";
+    btn1.value = "划线查询(local)";
     btn1.onclick = function () {
-        startInteractivePntQuery();
+        startInteractivePathQuery();
     };
 
     var btn2 = document.getElementById('btn2');
@@ -336,7 +336,7 @@ function initDraw() {
     map.addLayer(drawLayer);
 //          创建并添加控件  点
     drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Path);
-    drawControl.featureAdded = callBack;
+    drawControl.featureAdded = PathQueryCallBack;
     map.addControl(drawControl);
 }
 function initHighLtLayer() {
@@ -348,7 +348,7 @@ function initHighLtLayer() {
 
 
 
-function callBack(feature) {
+function PathQueryCallBack(feature) {
 //            创建查询结构
     var queryStruct = new Zondy.Service.QueryFeatureStruct(
         {
@@ -380,9 +380,10 @@ function callBack(feature) {
     });
 
 //          开始查询
-    queryService.query(InteractiveQuerySuccess);
+    queryService.query(InteractivePathQuerySuccess);
 }
-function InteractiveQuerySuccess(data) {
+
+function InteractivePathQuerySuccess(data) {
     var formatData = JSON.stringify(data);
     Process(formatData, 1, "resultTable");
 //            如果存在已经高亮的图层则销毁,重建要高亮显示的新图层
@@ -400,7 +401,7 @@ function InteractiveQuerySuccess(data) {
     highLtLayer.addFeatures(features);//将要素添加到图层中
 }
 
-function startInteractivePntQuery() {
+function startInteractivePathQuery() {
     initLocalRiverMap();
     initDraw();
     if (drawControl) {
@@ -425,10 +426,63 @@ function initDrawPol() {
     drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
     map.addLayer(drawLayer);
 //          创建并添加控件  点
-    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Path);
-    drawControl.featureAdded = callBack;
+    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Polygon);
+    drawControl.featureAdded = PolygonQueryCallBack;
     map.addControl(drawControl);
 }
+
+function PolygonQueryCallBack(feature) {
+//            创建查询结构
+    var queryStruct = new Zondy.Service.QueryFeatureStruct(
+        {
+//                        要查询的信息
+            IncludeGeometry: true,
+            IncludeAttribute: true,
+            IncludeGraphic: true
+        }
+
+    );
+//          	创建查询形状
+    var polygonObj = new Zondy.Object.Polygon();
+//            传入OpenLayer的点的坐标
+    polygonObj.setByOL(feature.geometry);
+
+//            在点击下一个点时清除之前的点
+    feature.destroy();
+//            创建查询参数
+    var queryParm = new Zondy.Service.QueryParameter(
+        {
+            geometry: polygonObj,
+            resultFormat: "json",
+            struct: queryStruct
+        });
+//            创建查询服务
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world",2, {
+        ip: "127.0.0.1",
+        port: "6163"
+    });
+
+//          开始查询
+    queryService.query(InteractivePolygonQuerySuccess);
+}
+function InteractivePolygonQuerySuccess(data) {
+    var formatData = JSON.stringify(data);
+    Process(formatData, 1, "resultTable");
+//            如果存在已经高亮的图层则销毁,重建要高亮显示的新图层
+    if (highLtLayer) {
+        highLtLayer.destroy();
+    }
+    initHighLtLayer();
+//          初始化高亮图层
+//            新建对象存储要读取的数据
+    var format = new Zondy.Format.PolygonJSON();
+//                读取查询到的数据并添加到要素中
+    var features = format.read(data);
+//              将高亮图层设为可见
+    highLtLayer.setVisibility(true);//将图层设为可见
+    highLtLayer.addFeatures(features);//将要素添加到图层中
+}
+
 
 
 
