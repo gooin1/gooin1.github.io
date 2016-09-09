@@ -18,7 +18,7 @@ B20164322-甘肃农业大学-闫治涛
 感谢朱老师杨老师专门来我校培训并给我悉心的指导,同时也感谢QQ群中素未谋面的老师们的耐心解答.
 
 #### Google Material Design Lite 开源项目
-[Material Design Lite](https://getmdl.io/) 制作质感设计语言的网站
+[Material Design Lite](https://getmdl.io/) 制作质感设计语言的网站（需科学上网，如有问题请联络本人QQ：1396663568）
 
 
 #### 腾讯云
