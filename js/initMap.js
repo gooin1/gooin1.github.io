@@ -28,7 +28,7 @@ function initCloudMap() {
         port: "6163",//端口
         isBaseLayer: true// 设为底图
         // layers:"hide:7"
-        
+
     });
 //          添加图层
     map.addLayers([layer]);
@@ -54,7 +54,7 @@ function initLocalMap() {
         ip: "127.0.0.1",
         port: "6163",//端口
         isBaseLayer: true,// 设为底图
-        layers:"include:0,1,2,3"
+        layers: "include:0,1,2,3"
     });
 //          添加图层
     map.addLayers([layer]);
@@ -79,18 +79,26 @@ function initLocalRiverMap() {
             new OpenLayers.Control.OverviewMap()    //鹰眼
         ]
     });
-//            添加图层
 
-    layer = new Zondy.Map.Doc("BaseLayer", "world", {
+//            添加图层
+    layer = new Zondy.Map.Doc("底图图层", "world", {
         ip: "127.0.0.1",
         port: "6163",//端口
         isBaseLayer: true,// 设为底图
-        layers:"show:0,1,2,3"
+        layers: "exclude:7"
     });
-//          添加图层
-    map.addLayers([layer]);
+    //河流图层
+    layer1 = new Zondy.Map.Doc("无河流图层", "world", {
+        ip: "127.0.0.1",
+        port: "6163",//端口
+        isBaseLayer: true,// 设为底图
+        layers: "exclude:2,7"//设置显示河流图层索引号
+    });
+
+//          添加图层到地图容器中
+    map.addLayers([layer,layer1]);
 //            设置显示中心和级别
-    map.setCenter(new OpenLayers.LonLat(105.9,32.8), 4);
+    map.setCenter(new OpenLayers.LonLat(105.9, 32.8), 4);
 }
 
 /**
@@ -108,22 +116,28 @@ function initCloudRiverMap() {
             new OpenLayers.Control.OverviewMap()    //鹰眼
         ]
     });
-//            添加图层
+    
 
-    layer = new Zondy.Map.Doc("BaseLayer", "world", {
+    //            添加图层
+    layer = new Zondy.Map.Doc("底图图层", "worldJW", {
         ip: "123.206.26.105",
         port: "6163",//端口
         isBaseLayer: true,// 设为底图
-        layers:"show:0,1,2,3"
+        layers: "exclude:7"
     });
-//          添加图层
-    map.addLayers([layer]);
+    //河流图层
+    layer1 = new Zondy.Map.Doc("无河流图层", "worldJW", {
+        ip: "123.206.26.105",
+        port: "6163",//端口
+        isBaseLayer: true,// 设为底图
+        layers: "exclude:2,7"//设置显示河流图层索引号
+    });
+
+//          添加图层到地图容器中
+    map.addLayers([layer,layer1]);
 //            设置显示中心和级别
-    map.setCenter(new OpenLayers.LonLat(105.9,32.8), 4);
+    map.setCenter(new OpenLayers.LonLat(105.9, 32.8), 4);
 }
-
-
-
 
 
 /**
@@ -149,7 +163,7 @@ function initOnlineMap() {
         {
 //                        添加GoogleMap的矢量图层
             layerType: Zondy.Enum.GoogleLayerType.VEC,
-            isBaseLayer: true,
+            isBaseLayer: true
         }
     );
     map.addLayers([layer0]);
@@ -275,18 +289,21 @@ function asDrawBtn() {
     var btn1 = document.getElementById('btn1');
     btn1.value = "交互绘制点";
     btn1.onclick = function () {
+
         StartDrawPnt();
     };
 
     var btn2 = document.getElementById('btn2');
     btn2.value = "交互绘制折线";
     btn2.onclick = function () {
+
         StartDrawLin();
     };
 
     var btn3 = document.getElementById('btn3');
     btn3.value = "交互绘制多边形";
     btn3.onclick = function () {
+
         StartDrawPolygon();
     };
 
@@ -302,21 +319,22 @@ function asDrawBtn() {
 /*******************更改按钮为地图显示按钮************************/
 function asQueryBtn() {
     var btn1 = document.getElementById('btn1');
-    btn1.value = "划线查询(local)";
+    btn1.value = "划线查询(本地服务器)";
     btn1.onclick = function () {
         startInteractivePathQuery();
     };
 
     var btn2 = document.getElementById('btn2');
-    btn2.value = "交互多边形查询(云服务器)";
+    btn2.value = "交互多边形查询(本地服务器)";
     btn2.onclick = function () {
         startInteractivePolQuery();
     };
 
     var btn3 = document.getElementById('btn3');
-    btn3.value = "河流显示测试";
+    btn3.value = "河流图层显示(yun)";
     btn3.onclick = function () {
-        initLocalRiverMap();
+        initCloudRiverMap();
+
     };
 
     var btn4 = document.getElementById('btn4');
@@ -346,8 +364,6 @@ function initHighLtLayer() {
 }
 
 
-
-
 function PathQueryCallBack(feature) {
 //            创建查询结构
     var queryStruct = new Zondy.Service.QueryFeatureStruct(
@@ -357,7 +373,6 @@ function PathQueryCallBack(feature) {
             IncludeAttribute: true,
             IncludeGraphic: true
         }
-        
     );
 //          	创建查询形状
     var pathObj = new Zondy.Object.PolyLineForQuery();
@@ -374,7 +389,7 @@ function PathQueryCallBack(feature) {
             struct: queryStruct
         });
 //            创建查询服务
-    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world",2, {
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world", 2, {
         ip: "127.0.0.1",
         port: "6163"
     });
@@ -402,6 +417,7 @@ function InteractivePathQuerySuccess(data) {
 }
 
 function startInteractivePathQuery() {
+    clearJSON();
     initLocalRiverMap();
     initDraw();
     if (drawControl) {
@@ -410,10 +426,9 @@ function startInteractivePathQuery() {
 }
 
 
-
-
 /******************交互多边形查询*******************/
 function startInteractivePolQuery() {
+    clearJSON();
     initLocalRiverMap();
     initDrawPol();
     if (drawControl) {
@@ -440,7 +455,6 @@ function PolygonQueryCallBack(feature) {
             IncludeAttribute: true,
             IncludeGraphic: true
         }
-
     );
 //          	创建查询形状
     var polygonObj = new Zondy.Object.Polygon();
@@ -457,7 +471,7 @@ function PolygonQueryCallBack(feature) {
             struct: queryStruct
         });
 //            创建查询服务
-    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world",2, {
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "world", 2, {
         ip: "127.0.0.1",
         port: "6163"
     });
@@ -484,9 +498,6 @@ function InteractivePolygonQuerySuccess(data) {
 }
 
 
-
-
-
 /***************************销毁地图*******************************/
 function destroyMap() {
     if (map) {
@@ -504,6 +515,23 @@ function showButtons() {
     var Buttons = document.getElementById('ButtonLib');
     Buttons.style.display = "";
 }
+
+/*********************清除JSON数据******************/
+function clearJSON() {
+    var jsonTable = document.getElementById('resultTable');
+    jsonTable.innerHTML = null;
+}
+/********************隐藏JSON面板*******************/
+function hideJSON() {
+    var jsonTable = document.getElementById('resultTable');
+    jsonTable.style.display = "none";
+}
+/********************显示JSON面板*******************/
+function showJSON() {
+    var jsonTable = document.getElementById('resultTable');
+    jsonTable.style.display = "";
+}
+
 
 /********************清除绘制图层*********************/
 function clearMap() {
