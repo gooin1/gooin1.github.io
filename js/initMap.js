@@ -7,6 +7,7 @@ var layer0;
 
 
 function initCloudMap() {
+    clearJSON();
     // clearMap();
     destroyMap();
 //            创建地图容器
@@ -37,6 +38,7 @@ function initCloudMap() {
 }
 /**********************************本地地图******************************************/
 function initLocalMap() {
+    clearJSON();
     destroyMap();
 //            创建地图容器
     map = new OpenLayers.Map("map2", {
@@ -193,8 +195,15 @@ function asMapBtn() {
         initLocalMap();
     };
 
+    //隐藏暂时用不到的按钮
     var btn4 = document.getElementById('btn4');
     btn4.style.visibility = "hidden";
+
+    var btn5 = document.getElementById('btn5');
+    btn5.style.visibility = "hidden";
+
+    var btn6 = document.getElementById('btn6');
+    btn6.style.visibility = "hidden";
 
 }
 
@@ -286,33 +295,88 @@ function StartDrawPolygon() {
     drawControl.activate();//激活绘图控件
 }
 
+/********************************交互规则多边形绘制************************************/
+//创建一个矢量图层用于交互式绘制
+function initDrawRPolygonControl() {
+//            创建图层
+    vecLayer = new OpenLayers.Layer.Vector("DrawLayer");
+//            添加到地图中
+    map.addLayer(vecLayer);
+//            创建绘制**规则多边形**工具
+    drawControl = new OpenLayers.Control.DrawFeature(vecLayer, OpenLayers.Handler.RegularPolygon);
+//            将绘图工具添加到控件中
+    map.addControl(drawControl);
+}
+//        开始绘制函数
+function StartDraw4Polygon() {
+    //如果绘图图层不存在
+    if (vecLayer == null) {
+//                初始化绘图
+        initDrawRPolygonControl();
+    } else {
+        clearMap();
+        initDrawRPolygonControl();
+    }
+    drawControl.activate();//激活绘图控件
+    drawControl.handler.setOptions({sides: 4});//设置绘制4边形
+}
+/******************************交互绘制圆********************************/
+//        开始绘制函数
+function StartDrawCircle() {
+    //如果绘图图层不存在
+    if (vecLayer == null) {
+//                初始化绘图
+        initDrawRPolygonControl();
+    } else {
+        clearMap();
+        initDrawRPolygonControl();
+    }
+    drawControl.activate();//激活绘图控件
+    drawControl.handler.setOptions({sides: 60});//设置绘制4边形
+}
+
 /*******************更改按钮为绘图按钮************************/
 function asDrawBtn() {
     var btn1 = document.getElementById('btn1');
     btn1.value = "交互绘制点";
     btn1.onclick = function () {
-
+        //调用函数交互绘制点
         StartDrawPnt();
     };
 
     var btn2 = document.getElementById('btn2');
     btn2.value = "交互绘制折线";
     btn2.onclick = function () {
-
+        ////调用函数交互绘制线
         StartDrawLin();
     };
 
     var btn3 = document.getElementById('btn3');
     btn3.value = "交互绘制多边形";
     btn3.onclick = function () {
-
+        ////调用函数交互绘制多边形
         StartDrawPolygon();
     };
-
     var btn4 = document.getElementById('btn4');
     btn4.style.visibility = "";
-    btn4.value = "清除绘制";
+    btn4.value = "交互绘制规则四边形";
     btn4.onclick = function () {
+        ////调用函数交互绘制多边形
+        StartDraw4Polygon();
+    };
+    var btn5 = document.getElementById('btn5');
+    btn5.style.visibility = "";
+    btn5.value = "交互绘制圆";
+    btn5.onclick = function () {
+        ////调用函数交互绘制圆
+        StartDrawCircle();
+    };
+
+    var btn6 = document.getElementById('btn6');
+    btn6.style.visibility = "";
+    btn6.value = "清除绘制";
+    btn6.onclick = function () {
+        ////调用函数清除绘制的图形
         clearMap();
     };
 }
@@ -321,26 +385,38 @@ function asDrawBtn() {
 /*******************更改按钮为地图显示按钮************************/
 function asQueryBtn() {
     var btn1 = document.getElementById('btn1');
-    btn1.value = "划线查询(本地服务器)";
+    btn1.value = "交互划线查询(本地)";
     btn1.onclick = function () {
         startInteractivePathQuery();
     };
 
     var btn2 = document.getElementById('btn2');
-    btn2.value = "交互多边形查询(本地服务器)";
+    btn2.value = "交互多边形查询(本地)";
     btn2.onclick = function () {
         startInteractivePolQuery();
     };
 
     var btn3 = document.getElementById('btn3');
-    btn3.value = "河流图层显示(yun)";
+    btn3.style.visibility = "";
+    btn3.value = "交互划线查询(腾讯云)";
     btn3.onclick = function () {
-        initCloudRiverMap();
+        startInteractiveCloudPathQuery();
 
     };
 
     var btn4 = document.getElementById('btn4');
-    btn4.style.visibility = "hidden";
+    btn4.style.visibility = "";
+    btn4.value = "交互多边形查询(腾讯云)";
+    btn4.onclick = function () {
+        startInteractiveCloudPolQuery();
+
+    };
+
+
+    var btn5 = document.getElementById('btn5');
+    btn5.style.visibility = "hidden";
+    var btn6 = document.getElementById('btn6');
+    btn6.style.visibility = "hidden";
 
 }
 
@@ -348,7 +424,7 @@ function asQueryBtn() {
 var drawLayer;
 var highLtLayer;
 
-/*******************************交互式线查询(高亮+JSON)*************************************/
+/*******************************交互式线查询(高亮+JSON)本地*************************************/
 
 function initDraw() {
 //            添加一个绘制图层
@@ -428,7 +504,7 @@ function startInteractivePathQuery() {
 }
 
 
-/******************交互多边形查询*******************/
+/******************交互多边形查询(本地)*******************/
 function startInteractivePolQuery() {
     clearJSON();
     initLocalRiverMap();
@@ -499,6 +575,154 @@ function InteractivePolygonQuerySuccess(data) {
     highLtLayer.addFeatures(features);//将要素添加到图层中
 }
 
+/**************************************交互线查询(云)*****************************************/
+function startInteractiveCloudPathQuery() {
+    clearJSON();
+    initCloudRiverMap();
+    initCloudDraw();
+    if (drawControl) {
+        drawControl.activate();//激活绘图控件
+    }
+}
+
+function initCloudDraw() {
+//            添加一个绘制图层
+    drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
+    map.addLayer(drawLayer);
+//          创建并添加控件  点
+    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Path);
+    drawControl.featureAdded = CloudPathQueryCallBack;
+    map.addControl(drawControl);
+}
+function CloudPathQueryCallBack(feature) {
+//            创建查询结构
+    var queryStruct = new Zondy.Service.QueryFeatureStruct(
+        {
+//                        要查询的信息
+            IncludeGeometry: true,
+            IncludeAttribute: true,
+            IncludeGraphic: true
+        }
+    );
+//          	创建查询形状
+    var pathObj = new Zondy.Object.PolyLineForQuery();
+//            传入OpenLayer的点的坐标
+    pathObj.setByOL(feature.geometry);
+
+//            在点击下一个点时清除之前的点
+    feature.destroy();
+//            创建查询参数
+    var queryParm = new Zondy.Service.QueryParameter(
+        {
+            geometry: pathObj,
+            resultFormat: "json",
+            struct: queryStruct
+        });
+//            创建查询服务
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "worldJW", 2, {
+        ip: "123.206.26.105",
+        port: "6163"
+    });
+
+//          开始查询
+    queryService.query(InteractiveCloudPathQuerySuccess);
+}
+
+function InteractiveCloudPathQuerySuccess(data) {
+    var formatData = JSON.stringify(data);
+    Process(formatData, 1, "resultTable");
+//            如果存在已经高亮的图层则销毁,重建要高亮显示的新图层
+    if (highLtLayer) {
+        highLtLayer.destroy();
+    }
+    initHighLtLayer();
+//          初始化高亮图层
+//            新建对象存储要读取的数据
+    var format = new Zondy.Format.PolygonJSON();
+//                读取查询到的数据并添加到要素中
+    var features = format.read(data);
+//              将高亮图层设为可见
+    highLtLayer.setVisibility(true);//将图层设为可见
+    highLtLayer.addFeatures(features);//将要素添加到图层中
+}
+
+
+
+
+/**************************************交互多边形查询(云)*****************************************/
+
+/******************交互多边形查询(本地)*******************/
+function startInteractiveCloudPolQuery() {
+    clearJSON();
+    initCloudRiverMap();
+    initDrawPolCloud();
+    if (drawControl) {
+        drawControl.activate();//激活绘图控件
+    }
+}
+
+function initDrawPolCloud() {
+//            添加一个绘制图层
+    drawLayer = new OpenLayers.Layer.Vector("DrawLayer");
+    map.addLayer(drawLayer);
+//          创建并添加控件  多边形
+    drawControl = new OpenLayers.Control.DrawFeature(drawLayer, OpenLayers.Handler.Polygon);
+    drawControl.featureAdded = CloudPolygonQueryCallBack;
+    map.addControl(drawControl);
+}
+
+function CloudPolygonQueryCallBack(feature) {
+//            创建查询结构
+    var queryStruct = new Zondy.Service.QueryFeatureStruct(
+        {
+//                        要查询的信息
+            IncludeGeometry: true,
+            IncludeAttribute: true,
+            IncludeGraphic: true
+        }
+    );
+//          	创建查询形状
+    var polygonObj = new Zondy.Object.Polygon();
+//            传入OpenLayer的点的坐标
+    polygonObj.setByOL(feature.geometry);
+
+//            在点击下一个点时清除之前的点
+    feature.destroy();
+//            创建查询参数
+    var queryParm = new Zondy.Service.QueryParameter(
+        {
+            geometry: polygonObj,
+            resultFormat: "json",
+            struct: queryStruct
+        });
+//            创建查询服务
+    var queryService = new Zondy.Service.QueryDocFeature(queryParm, "worldJW", 2, {
+        ip: "123.206.26.105",
+        port: "6163"
+    });
+
+//          开始查询
+    queryService.query(InteractiveCloudPolygonQuerySuccess);
+}
+function InteractiveCloudPolygonQuerySuccess(data) {
+    var formatData = JSON.stringify(data);
+    Process(formatData, 1, "resultTable");
+//            如果存在已经高亮的图层则销毁,重建要高亮显示的新图层
+    if (highLtLayer) {
+        highLtLayer.destroy();
+    }
+    initHighLtLayer();
+//          初始化高亮图层
+//            新建对象存储要读取的数据
+    var format = new Zondy.Format.PolygonJSON();
+//                读取查询到的数据并添加到要素中
+    var features = format.read(data);
+//              将高亮图层设为可见
+    highLtLayer.setVisibility(true);//将图层设为可见
+    highLtLayer.addFeatures(features);//将要素添加到图层中
+}
+
+
 
 /**********************************************缓冲区分析*******************************************/
 /*******************更改按钮为缓冲区分析按钮************************/
@@ -522,9 +746,14 @@ function asBuffBtn() {
     //     initCloudRiverMap();
     //
     // };
-
     var btn4 = document.getElementById('btn4');
     btn4.style.visibility = "hidden";
+
+    var btn5 = document.getElementById('btn5');
+    btn5.style.visibility = "hidden";
+
+    var btn6 = document.getElementById('btn6');
+    btn6.style.visibility = "hidden";
 
 }
 
