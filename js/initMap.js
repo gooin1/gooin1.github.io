@@ -69,6 +69,7 @@ function initLocalMap() {
  */
 function initLocalRiverMap() {
     destroyMap();
+    clearJSON();
 //            创建地图容器
     map = new OpenLayers.Map("map2", {
 //            添加控件
@@ -96,7 +97,7 @@ function initLocalRiverMap() {
     });
 
 //          添加图层到地图容器中
-    map.addLayers([layer,layer1]);
+    map.addLayers([layer, layer1]);
 //            设置显示中心和级别
     map.setCenter(new OpenLayers.LonLat(105.9, 32.8), 4);
 }
@@ -106,6 +107,7 @@ function initLocalRiverMap() {
  */
 function initCloudRiverMap() {
     destroyMap();
+    clearJSON();
 //            创建地图容器
     map = new OpenLayers.Map("map2", {
 //            添加控件
@@ -116,7 +118,7 @@ function initCloudRiverMap() {
             new OpenLayers.Control.OverviewMap()    //鹰眼
         ]
     });
-    
+
 
     //            添加图层
     layer = new Zondy.Map.Doc("底图图层", "worldJW", {
@@ -134,7 +136,7 @@ function initCloudRiverMap() {
     });
 
 //          添加图层到地图容器中
-    map.addLayers([layer,layer1]);
+    map.addLayers([layer, layer1]);
 //            设置显示中心和级别
     map.setCenter(new OpenLayers.LonLat(105.9, 32.8), 4);
 }
@@ -498,51 +500,235 @@ function InteractivePolygonQuerySuccess(data) {
 }
 
 
-/***************************销毁地图*******************************/
-function destroyMap() {
-    if (map) {
-        map.destroy();
+/**********************************************缓冲区分析*******************************************/
+/*******************更改按钮为缓冲区分析按钮************************/
+function asBuffBtn() {
+    var btn1 = document.getElementById('btn1');
+    btn1.value = "河流水害模拟分析(本地)";
+    btn1.onclick = function () {
+        classBuffBySingleRing();
+    };
+
+    var btn2 = document.getElementById('btn2');
+    btn2.value = "河流水害模拟分析(腾讯云)";
+    btn2.onclick = function () {
+        classBuffBySingleRingCloud();
+    };
+
+    var btn3 = document.getElementById('btn3');
+    btn3.style.visibility = "hidden";
+    // btn3.value = "河流图层显示(yun)";
+    // btn3.onclick = function () {
+    //     initCloudRiverMap();
+    //
+    // };
+
+    var btn4 = document.getElementById('btn4');
+    btn4.style.visibility = "hidden";
+
+}
+
+
+/*******************************多重类缓冲分析(本地)**********************************/
+function initClassAnalysisMap() {
+    
+}
+    initLocalRiverMap();
+
+    var classSRLayerName = "gdbp://MapGisLocal/示例数据/ds/世界地图/sfcls/河流水害模拟结果" + getCurrentTime();
+
+    function classBuffBySingleRing() {
+        initClassAnalysisMap();
+
+//        调用函数清理图层
+        clearA();
+//        实例化一个多重类缓冲分析对象
+        var classBuffAnalysis = new Zondy.Service.ClassBufferBySingleRing({
+            ip: "127.0.0.1",                                    //ip
+            port: "6163",//端口
+            //    缓冲时要素左侧缓冲半径
+            leftRad: 0.5,
+            //    缓冲时要素右侧缓冲半径
+            rightRad: 0.5,
+
+            srcInfo: "gdbp://MapGisLocal/示例数据/ds/世界地图/sfcls/世界河流",  //要缓冲的图层
+            desInfo: classSRLayerName    //缓冲结果存储路径及命名
+        });
+//        执行多重类缓冲分析
+        classBuffAnalysis.execute(classBuffBySingleRingSuccess);
+    }
+
+//    回调函数
+    function classBuffBySingleRingSuccess(data) {
+//          如果获取到结果
+        if (data.results) {
+//          如果获取的结果数组元素数量不为0
+            if (data.results.length != 0) {
+//                新建图层存储缓冲区分析结果
+                var resultLayer = new Zondy.Map.Layer("河流水害模拟结果" + getCurrentTime(), [classSRLayerName], {
+                    ip: "127.0.0.1",//ip
+                    port: "6163",//端口
+                    isBaseLayer: false//不为基础图层
+                });
+            }
+            map.addLayer(resultLayer);//将图层添加到地图容器中
+        } else {
+            alert("缓冲失败!");//弹窗提醒
+        }
+    }
+
+/*******************************多重类缓冲分析(腾讯云)**********************************/
+function initClassAnalysisCloudMap() {
+
+}
+initCloudRiverMap();
+
+var classSRLayerNameCloud = "gdbp://MapGisLocal/示例数据/ds/世界地图/sfcls/河流水害模拟结果" + getCurrentTime();
+
+function classBuffBySingleRingCloud() {
+    initClassAnalysisCloudMap();
+
+//        调用函数清理图层
+    clearA();
+//        实例化一个多重类缓冲分析对象
+    var classBuffAnalysis = new Zondy.Service.ClassBufferBySingleRing({
+        ip: "123.206.26.105",                                    //ip
+        port: "6163",//端口
+        //    缓冲时要素左侧缓冲半径
+        leftRad: 0.5,
+        //    缓冲时要素右侧缓冲半径
+        rightRad: 0.5,
+
+        srcInfo: "gdbp://MapGisLocal/示例数据/ds/世界地图/sfcls/世界河流",  //要缓冲的图层
+        desInfo: classSRLayerNameCloud    //缓冲结果存储路径及命名
+    });
+//        执行多重类缓冲分析
+    classBuffAnalysis.execute(classBuffBySingleRingSuccessCloud);
+}
+
+//    回调函数
+function classBuffBySingleRingSuccessCloud(data) {
+//          如果获取到结果
+    if (data.results) {
+//          如果获取的结果数组元素数量不为0
+        if (data.results.length != 0) {
+//                新建图层存储缓冲区分析结果
+            var resultLayer = new Zondy.Map.Layer("河流水害模拟结果" + getCurrentTime(), [classSRLayerNameCloud], {
+                ip: "123.206.26.105",//ip
+                port: "6163",//端口
+                isBaseLayer: false//不为基础图层
+            });
+        }
+        map.addLayer(resultLayer);//将图层添加到地图容器中
+    } else {
+        alert("缓冲失败!");//弹窗提醒
     }
 }
 
-/****************隐藏Button面板*******************/
-function hideButtons() {
-    var Buttons = document.getElementById('ButtonLib');
-    Buttons.style.display = "none";
-}
-/*******************显示Button面板*****************/
-function showButtons() {
-    var Buttons = document.getElementById('ButtonLib');
-    Buttons.style.display = "";
-}
-
-/*********************清除JSON数据******************/
-function clearJSON() {
-    var jsonTable = document.getElementById('resultTable');
-    jsonTable.innerHTML = null;
-}
-/********************隐藏JSON面板*******************/
-function hideJSON() {
-    var jsonTable = document.getElementById('resultTable');
-    jsonTable.style.display = "none";
-}
-/********************显示JSON面板*******************/
-function showJSON() {
-    var jsonTable = document.getElementById('resultTable');
-    jsonTable.style.display = "";
-}
 
 
-/********************清除绘制图层*********************/
-function clearMap() {
-    if (vecLayer) {
+
+
+
+    /***************************销毁地图*******************************/
+    function destroyMap() {
+        if (map) {
+            map.destroy();
+        }
+    }
+
+    /****************隐藏Button面板*******************/
+    function hideButtons() {
+        var Buttons = document.getElementById('ButtonLib');
+        Buttons.style.display = "none";
+    }
+
+    /*******************显示Button面板*****************/
+    function showButtons() {
+        var Buttons = document.getElementById('ButtonLib');
+        Buttons.style.display = "";
+    }
+
+    /*********************清除JSON数据******************/
+    function clearJSON() {
+        var jsonTable = document.getElementById('resultTable');
+        if (jsonTable)
+        {
+            jsonTable.innerHTML = null;  
+        }
+        
+        
+    }
+
+    /********************隐藏JSON面板*******************/
+    function hideJSON() {
+        var jsonTable = document.getElementById('resultTable');
+        jsonTable.style.display = "none";
+    }
+
+    /********************显示JSON面板*******************/
+    function showJSON() {
+        var jsonTable = document.getElementById('resultTable');
+        jsonTable.style.display = "";
+    }
+
+
+    /********************清除绘制图层*********************/
+    function clearMap() {
+        if (vecLayer) {
 //               移除绘图图层
-        map.removeLayer(vecLayer);
-    }
+            map.removeLayer(vecLayer);
+        }
 //            绘图图层赋值为空
-    vecLayer = null;
+        vecLayer = null;
 //            关闭绘图控件
-    drawControl.deactivate();
-}
+        drawControl.deactivate();
+    }
 
 
+//    获取当前时间函数
+    function getCurrentTime() {
+        //实例化一个日期对象
+        var now = new Date();
+
+        var year = now.getFullYear();	//四位数字返回年份。
+        var month = now.getMonth() + 1; //月份 (0 ~ 11)。
+        var day = now.getDate();        //一个月中的某一天 (1 ~ 31)
+
+        var hh = now.getHours();        //获取小时 0-23
+        var mm = now.getMinutes();      //获取分钟 0-59
+        var ss = now.getSeconds();      //获取秒 0-59
+
+//            定义一个对象存储时间
+        var clock = year + "-";   //2016-
+
+//            如果月份小于10则在月份前加0
+        if (month < 10) clock += "0";
+        clock += month + "-";      //2016-07-
+//            如果天数小于10则在天数前加0
+        if (day < 10) clock += "0";
+        clock += day + "-";         //2016-07-27-
+//            如果小时小于10则在小时前加0
+        if (hh < 10) clock += "0";
+        clock += hh;                //2016-07-27-21
+//            如果分钟小于10则在分钟前加0
+        if (mm < 10) clock += "0";
+        clock += mm;                //2016-07-27-2135
+//            如果秒数小于10则在秒数前加0
+        if (ss < 10) clock += "0";
+        clock += ss;                //2016-07-27-213523
+//            返回clock的值
+        return (clock);
+    }
+
+//      清理图层函数
+    function clearA() {
+//        如果图层数量大于1 (要留下基础图层)
+        if (map.layers.length > 1) {
+            for (var i = map.layers.length - 1; i > 0; i--) {
+//                删除除基础图层外的图层
+                map.removeLayer(map.layers[i], false);
+            }
+        }
+
+    }
