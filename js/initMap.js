@@ -70,8 +70,8 @@ function initLocalMap() {
  * 本地
  */
 function initLocalRiverMap() {
-    destroyMap();
     clearJSON();
+    destroyMap();
 //            创建地图容器
     map = new OpenLayers.Map("map2", {
 //            添加控件
@@ -760,7 +760,7 @@ function asBuffBtn() {
 
 /*******************************多重类缓冲分析(本地)**********************************/
 function initClassAnalysisMap() {
-    
+
 }
     initLocalRiverMap();
 
@@ -883,10 +883,10 @@ function classBuffBySingleRingSuccessCloud(data) {
         var jsonTable = document.getElementById('resultTable');
         if (jsonTable)
         {
-            jsonTable.innerHTML = null;  
+            jsonTable.innerHTML = null;
         }
-        
-        
+
+
     }
 
     /********************隐藏JSON面板*******************/
